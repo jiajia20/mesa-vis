@@ -1,4 +1,6 @@
 # Find the time it needed to infect the whole/part network
+from model import *
+
 def find_last_increase (a):
     i = 0
     for i in range(len(a)-2):
@@ -36,24 +38,3 @@ def calculate_total_infection(df):
     return(total_inf)
 
 #batch running test 2
-from mesa.batchrunner import BatchRunner
-
-#num_nodes=10, avg_node_degree=3, rewire_prob=.1, initial_outbreak_size=1, threshold = 2
-rewire_list = []
-for i in range(21):
-    rewire_list.append(round((i*0.05),3))
-#rewire_list = [0, 0.1, 0.2, 0.3]
-
-fixed_params = {"num_nodes": 80,
-               "avg_node_degree": 8,
-               "initial_outbreak_size" : 1,
-               "threshold" : 2}
-variable_params = {"rewire_prob": rewire_list}  #  {"rewire_prob": drange(0.05, 1.0, 0.05)}
-
-batch_run = BatchRunner(InfoSpread,
-                        variable_params,
-                        fixed_params,
-                        iterations=5,
-                        max_steps=10,
-                        model_reporters={"infection_list": infected_list})
-batch_run.run_all()

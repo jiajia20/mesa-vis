@@ -6,7 +6,7 @@ from mesa import Agent, Model        ## This is the model - how agent interact
 from mesa.time import SimultaneousActivation      #This is the scheduler - how agents are activated
 from mesa.datacollection import DataCollector     #This output a Pandas file
 from mesa.space import NetworkGrid        #This means the model runs on  network (high dimentional space)
-
+import numpy as np
 
 def number_state(model, state):
     return sum([a.state == state for a in model.grid.get_all_cell_contents()])
@@ -27,7 +27,7 @@ def infected_list(model):
 class InfoSpread(Model):
     """A virus model with some number of agents"""
 
-    def __init__(self, num_nodes=10, avg_node_degree=3, rewire_prob=.1, initial_outbreak_size=1, threshold = 2,):
+    def __init__(self, num_nodes=10, avg_node_degree=3, rewire_prob=.1, initial_outbreak_size=1, threshold = 2, inf_prob_model = 1,):
         self.num_nodes = num_nodes
         self.G = nx.watts_strogatz_graph(n=self.num_nodes, k= avg_node_degree, p=rewire_prob)   #G generate graph structure
         self.grid = NetworkGrid(self.G) #grid is the Masa native defintion of space: a coorindate with specified topology on which agents sits and interact
@@ -35,6 +35,8 @@ class InfoSpread(Model):
         self.initial_outbreak_size = (
             initial_outbreak_size if initial_outbreak_size <= num_nodes else num_nodes
         )
+
+        self.inf_prob_model = inf_prob_model
 
         self.datacollector = DataCollector(
             {
@@ -49,7 +51,8 @@ class InfoSpread(Model):
                 i,
                 self,
                 "susceptible",
-                threshold
+                threshold,
+                inf_prob_model
             )
             self.schedule.add(a)
             # Add the agent to the node
@@ -84,10 +87,11 @@ class InfoSpread(Model):
 
 
 class User(Agent):
-    def __init__(self, unique_id, model, initial_state, threshold):
+    def __init__(self, unique_id, model, initial_state, threshold,inf_prob_agent):
         super().__init__(unique_id, model)   #super(). is to inherent agent's property. The user class is a subset of the agent class with additional properties. All the papermeter here are inherited from orginial agent class, everything is new and specific to the user class
         self.state = initial_state
         self.threshold = threshold
+        self.inf_prob_agent = inf_prob_agent
 
 
     def get_infected_neighbor_count(self):
@@ -106,7 +110,8 @@ class User(Agent):
         if self.state == 'susceptible':
             infected_neighbors = self.get_infected_neighbor_count()
             if infected_neighbors >= self.threshold:
-                self._next_state = 'infected'
+                if np.random.uniform() <= self.inf_prob_agent:
+                    self._next_state = 'infected'
 
     def advance(self):
         self.state = self._next_state

@@ -1,5 +1,5 @@
 # Find the time it needed to infect the whole/part network
-from AB_model import * # This need to be manually changed everytime
+from fb_model import * # This need to be manually changed everytime
 
 def find_last_increase (a):
     i = 0

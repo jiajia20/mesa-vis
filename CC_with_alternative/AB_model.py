@@ -30,7 +30,7 @@ class InfoSpread(Model):
     def __init__(self, num_nodes=10, new_edge_num=3, initial_outbreak_size=1, threshold = 2, inf_prob = 1,):
         self.num_nodes = num_nodes
         self.new_edge_num = new_edge_num
-        self.G = nx.nx.barabasi_albert_graph(n=self.num_nodes, m= self.new_edge_num)   #G generate graph structure BA graph
+        self.G = nx.barabasi_albert_graph(n=self.num_nodes, m= self.new_edge_num)   #G generate graph structure BA graph
         self.grid = NetworkGrid(self.G) #grid is the Masa native defintion of space: a coorindate with specified topology on which agents sits and interact
         self.schedule = SimultaneousActivation(self)
         self.initial_outbreak_size = (
